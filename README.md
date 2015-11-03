@@ -113,4 +113,15 @@ See `lr-hacks/dep-vis`. There are two components here:
 
 - `amdatu` - Deriving from [Paul Bakker's D3 Apache Felix Dependency Manager demo](https://bitbucket.org/paul_bakker/dependency-graph/src/92725c1a4094dd00f98105bf70ef552d16c30f96/org.amdatu.dependencygraph/src/org/amdatu/dependencygraph/?at=master), this Liferay plugin visualizes the result of the above web service using a [D3 Force Layout](https://github.com/mbostock/d3/wiki/Force-Layout). 
 
+## Bonus - Social Driver for Liferay 7
+
+See `lr-hacks/social-driver`. This portlet will generate a bunch of fake data on Liferay, by creating fake users (with real looking profile pictures, job titles, locations, etc) and creating fake content (blogs, wikis, forum posts, comments, rankings, friend requests) using real data from Wikipedia. It makes for a nicer looking demo site!
+
+There are two portlets here:
+
+- `social-driver-portlet` - This is suitable for use with the classic Liferay Plugins SDK for Liferay 7.
+- `social.driver.web` - This is a standalone buildable OSGi module which can be dropped into Liferay's OSGi runtime. It produces the same as above but has been ported (thanks to [Jamie Sammons](https://www.liferay.com/web/jamie.sammons/profile)!) to Liferay 7's module-based plugin architecture.
+
+Just install this portlet, drop it onto any page, and click the buttons to start and stop the generator threads for various content types. Don't leave it running for too long - it will fill up your DB quickly (a max of 50 users are created, but an unlimited number of contents are created).
+
 
