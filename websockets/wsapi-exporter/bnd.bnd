@@ -1,0 +1,9 @@
+Bundle-Name: JSR-356 Java Websocket API
+Bundle-SymbolicName: javax.websocket
+Bundle-Version: 1.1.0
+Fragment-Host:\
+    system.bundle; extension:=framework
+
+Export-Package:\
+    javax.websocket,\
+    javax.websocket.server

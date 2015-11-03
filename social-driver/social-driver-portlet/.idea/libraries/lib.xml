@@ -1,0 +1,15 @@
+<component name="libraryTable">
+  <library name="lib">
+    <CLASSES>
+      <root url="jar://$PROJECT_DIR$/docroot/WEB-INF/lib/util-bridges.jar!/" />
+      <root url="jar://$PROJECT_DIR$/docroot/WEB-INF/lib/commons-logging.jar!/" />
+      <root url="jar://$PROJECT_DIR$/docroot/WEB-INF/lib/util-taglib.jar!/" />
+      <root url="jar://$PROJECT_DIR$/docroot/WEB-INF/lib/commons-httpclient.jar!/" />
+      <root url="jar://$PROJECT_DIR$/docroot/WEB-INF/lib/commons-codec.jar!/" />
+      <root url="jar://$PROJECT_DIR$/docroot/WEB-INF/lib/log4j.jar!/" />
+      <root url="jar://$PROJECT_DIR$/docroot/WEB-INF/lib/util-java.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>

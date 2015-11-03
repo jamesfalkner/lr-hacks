@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+
+<model-hints>
+	<model name="com.liferay.devhacks.model.Note">
+		<field name="name" type="String" />
+		<field name="note" type="String" />
+		<field name="noteId" type="long" />
+	</model>
+</model-hints>

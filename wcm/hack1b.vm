@@ -1,0 +1,13 @@
+## Long-running process hanging render
+<em>Demo 2: Long-running process that hangs the rendering for about 10 seconds</em>
+
+<h1>Hello, Liferay!</h1>
+<img src="/image/company_logo?img_id=0&amp;t=1446424935913" width="100">
+
+## long-running process
+#set ($start = $dateUtil.newDate())
+#foreach ($i in [1..15000000])
+#end
+#set ($elapsed = $dateUtil.newDate().getTime() - $start.getTime())
+
+<h3>That took forever! (${elapsed}ms)</h3>

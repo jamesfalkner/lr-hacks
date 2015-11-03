@@ -1,0 +1,293 @@
+#* @vtlvariable name="portletNamespace" type="java.lang.String" *#
+#* @vtlvariable name="portal" type="com.liferay.portal.util.Portal" *#
+#* @vtlvariable name="getterUtil" type="com.liferay.portal.kernel.util.GetterUtil" *#
+#* @vtlvariable name="stringUtil" type="com.liferay.portal.kernel.util.StringUtil" *#
+#* @vtlvariable name="max-members" type="com.liferay.portlet.journal.util.TemplateNode" *#
+#* @vtlvariable name="team-name" type="com.liferay.portlet.journal.util.TemplateNode" *#
+#* @vtlvariable name="section-members" type="com.liferay.portlet.journal.util.TemplateNode" *#
+#* @vtlvariable name="groupId" type="java.lang.String" *#
+#* @vtlvariable name="sectionMembers" type="java.lang.String" *#
+#* @vtlvariable name="locale" type="java.util.Locale" *#
+#* @vtlvariable name="companyId" type="java.lang.String" *#
+#* @vtlvariable name="scopeGroupId" type="java.lang.String" *#
+#* @vtlvariable name="sectionName" type="java.lang.String" *#
+#* @vtlvariable name="section-name" type="com.liferay.portlet.journal.util.TemplateNode" *#
+#* @vtlvariable name="params" type="java.util.LinkedHashMap" *#
+#* @vtlvariable name="users" type="java.util.List" *#
+#* @vtlvariable name="user" type="com.liferay.portal.model.User" *#
+#* @vtlvariable name="themeDisplay" type="com.liferay.portal.theme.ThemeDisplay" *#
+#* @vtlvariable name="languageUtil" type="com.liferay.portal.kernel.language.LanguageUtil" *#
+#* @vtlvariable name="request" type="java.util.Map" *#
+#* @vtlvariable name="httpUtil" type="com.liferay.portal.kernel.util.HttpUtil" *#
+#* @vtlvariable name="htmlUtil" type="com.liferay.portal.kernel.util.HtmlUtil" *#
+#* @vtlvariable name="obc" type="com.liferay.portal.util.comparator.UserLastNameComparator" *#
+#* @vtlvariable name="serviceLocator" type="com.liferay.portal.velocity.ServiceLocator" *#
+#* @vtlvariable name="teamLocalService" type="com.liferay.portal.service.TeamLocalServiceUtil" *#
+#* @vtlvariable name="mbMessageLocalService" type="com.liferay.portlet.messageboards.service.MBMessageLocalServiceUtil" *#
+#* @vtlvariable name="mbThreadLocalService" type="com.liferay.portlet.messageboards.service.MBThreadLocalServiceUtil" *#
+#* @vtlvariable name="imageToken" type="com.liferay.portal.kernel.servlet.ImageServletToken" *#
+#* @vtlvariable name="userLocalService" type="com.liferay.portal.service.UserLocalServiceUtil" *#
+#* @vtlvariable name="groupIdCriteria" type="com.liferay.portal.kernel.dao.orm.Criterion" *#
+#* @vtlvariable name="groupIdProp" type="com.liferay.portal.kernel.dao.orm.Property" *#
+#* @vtlvariable name="threadMap" type="java.util.Map<java.lang.Long, java.lang.Integer>" *#
+#* @vtlvariable name="q" type="com.liferay.portal.kernel.dao.orm.DynamicQuery" *#
+#* @vtlvariable name="q2" type="com.liferay.portal.kernel.dao.orm.DynamicQuery" *#
+#* @vtlvariable name="rfu" type="com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil" *#
+#* @vtlvariable name="pfu" type="com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil" *#
+#* @vtlvariable name="ofu" type="com.liferay.portal.kernel.dao.orm.OrderFactoryUtil" *#
+#* @vtlvariable name="msgs" type="java.util.List<com.liferay.portlet.messageboards.model.MBMessage>" *#
+#* @vtlvariable name="mlist" type="java.util.List<java.lang.Integer>" *#
+#* @vtlvariable name="now" type="java.util.Calendar" *#
+#* @vtlvariable name="monthago" type="java.util.Calendar" *#
+#set ($portletNamespace = $request.portlet-namespace)
+#set ($scopeGroupId = $getterUtil.getLong($request.theme-display.scope-group-id))
+
+#set ($portalBeanLocator = $portal.getClass().forName("com.liferay.portal.kernel.bean.PortalBeanLocatorUtil"))
+#set ($jsonFactory = $portalBeanLocator.locate("com.liferay.portal.kernel.json.JSONFactoryUtil"))
+#set ($mbMessageLocalService = $portalBeanLocator.locate("com.liferay.portlet.messageboards.service.MBMessageLocalService.velocity"))
+#set ($wikiPageLocalService = $portalBeanLocator.locate("com.liferay.portlet.wiki.service.WikiPageLocalService.velocity"))
+#set ($mbMessageFlagLocalService = $portalBeanLocator.locate("com.liferay.portlet.messageboards.service.MBMessageFlagLocalService.velocity"))
+#set ($mbThreadLocalService = $portalBeanLocator.locate("com.liferay.portlet.messageboards.service.MBThreadLocalService.velocity"))
+#set ($scProductVersionLocalService = $portalBeanLocator.locate("com.liferay.portlet.softwarecatalog.service.SCProductVersionLocalService.velocity"))
+
+#set ($userClass = $portal.getClass().forName("com.liferay.portal.model.User"))
+#set ($calClass = $portal.getClass().forName("java.util.GregorianCalendar"))
+#set ($mbMessageClass = $portal.getClass().forName("com.liferay.portlet.messageboards.model.MBMessage"))
+#set ($wikiPageClass = $portal.getClass().forName("com.liferay.portlet.wiki.model.WikiPage"))
+#set ($scProductVersionClass = $portal.getClass().forName("com.liferay.portlet.softwarecatalog.model.SCProductVersion"))
+#set ($mbMessageFlagClass = $portal.getClass().forName("com.liferay.portlet.messageboards.model.MBMessageFlag"))
+#set ($mbThreadClass = $portal.getClass().forName("com.liferay.portlet.messageboards.model.MBThread"))
+#set ($dqfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil"))
+#set ($pfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil"))
+#set ($ofu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.OrderFactoryUtil"))
+#set ($rfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil"))
+#set ($fmt = $portal.getClass().forName("java.text.SimpleDateFormat").newInstance())
+
+#set ($teamLocalService = $portalBeanLocator.locate("com.liferay.portal.service.TeamLocalService.velocity"))
+#set ($userLocalService = $portalBeanLocator.locate("com.liferay.portal.service.UserLocalService.velocity"))
+#set ($orgLocalService = $portalBeanLocator.locate("com.liferay.portal.service.OrganizationLocalService.velocity"))
+#set ($orgid = $orgLocalService.getOrganization($getterUtil.getLong($companyId), "Liferay, Inc.").getOrganizationId())
+#set ($obc = $portal.getClass().forName("com.liferay.portal.util.comparator.UserLastNameComparator").newInstance())
+
+
+#set ($now = $calClass.getInstance())
+#set ($monthago = $calClass.getInstance())
+#set ($V = $monthago.add(2, -1))
+
+From: $fmt.format($monthago.getTime())<p>
+To: $fmt.format($now.getTime())<p>
+
+#set ($q = $dqfu.forClass($userClass))
+#set ($V = $q.add($rfu.eq("companyId", $getterUtil.getLong($companyId))))
+##set ($V = $q.add($rfu.eq("active_", $getterUtil.getBoolean("true"))))
+##set ($V = $q.add($rfu.eq("lockout", $getterUtil.getBoolean("false"))))
+#set ($V = $q.add($rfu.between("loginDate", $monthago.getTime(), $now.getTime())))
+#set ($V = $q.setProjection($pfu.property("userId")))
+#set ($res1 = $userLocalService.dynamicQuery($q))
+
+<p>Total this period: $res1.size()</p>
+
+## posts
+#set ($q = $dqfu.forClass($mbMessageClass))
+#set ($V = $q.add($rfu.eq("companyId", $getterUtil.getLong($companyId))))
+#set ($V = $q.add($rfu.eq("groupId", $getterUtil.getLong($scopeGroupId))))
+#set ($V = $q.add($rfu.ne("categoryId", $getterUtil.getLong("-1"))))
+#set ($V = $q.add($rfu.eq("status", 0)))
+#set ($V = $q.add($rfu.in("userId", $res1)))
+#set ($V = $q.add($rfu.between("createDate", $monthago.getTime(), $now.getTime())))
+#set ($V = $q.setProjection($pfu.projectionList().add($pfu.groupProperty("userId")).add($pfu.alias($pfu.rowCount(), "msgCount"))))
+#set ($res2 = $mbMessageLocalService.dynamicQuery($q))
+
+#set ($posts = $portal.getClass().forName("java.util.HashMap").newInstance())
+#foreach ($res2obj in $res2)
+	#set ($userId = $res2obj.get(0))
+	#set ($msgCount = $res2obj.get(1))
+	#set ($V = $posts.put($userId, $msgCount))
+#end
+
+## answers
+#set ($q = $dqfu.forClass($mbMessageFlagClass))
+#set ($V = $q.add($rfu.between("modifiedDate", $monthago.getTime(), $now.getTime())))
+#set ($V = $q.add($rfu.eq("flag", 3)))
+#set ($V = $q.setProjection($pfu.projectionList().add($pfu.groupProperty("messageId"))))
+#set ($res3 = $mbMessageFlagLocalService.dynamicQuery($q))
+
+#set ($answers = $portal.getClass().forName("java.util.HashMap").newInstance())
+
+#foreach ($msgid in $res3)
+	#set ($userid = $mbMessageLocalService.getMessage($msgid).getUserId())
+	#if (!$mbMessageLocalService.getMessage($msgid).isRoot())
+		#if ($answers.containsKey($userid))
+			#set ($newtotal = $answers.get($userid) + 1)
+			#set ($V = $answers.put($userid, $newtotal))
+		#else
+			#set ($V = $answers.put($userid, 1))
+		#end
+	#end
+#end
+
+## wiki created
+#set ($wikiscreated = $portal.getClass().forName("java.util.HashMap").newInstance())
+#set ($q = $dqfu.forClass($wikiPageClass))
+#set ($V = $q.add($rfu.eq("version", 1.0)))
+#set ($V = $q.add($rfu.eq("groupId", $getterUtil.getLong($scopeGroupId))))
+#set ($V = $q.add($rfu.eq("status", 0)))
+#set ($V = $q.add($rfu.in("userId", $res1)))
+#set ($V = $q.add($rfu.between("createDate", $monthago.getTime(), $now.getTime())))
+#set ($V = $q.setProjection($pfu.projectionList().add($pfu.groupProperty("userId")).add($pfu.alias($pfu.rowCount(), "pageCount"))))
+
+#foreach ($resobj in $wikiPageLocalService.dynamicQuery($q))
+	#set ($userId = $resobj.get(0))
+	#set ($pageCount = $resobj.get(1))
+	#set ($V = $wikiscreated.put($userId, $pageCount))
+#end
+
+## wiki edited
+#set ($wikisedited = $portal.getClass().forName("java.util.HashMap").newInstance())
+#set ($q = $dqfu.forClass($wikiPageClass))
+#set ($V = $q.add($rfu.ne("version", 1.0)))
+#set ($V = $q.add($rfu.eq("groupId", $getterUtil.getLong($scopeGroupId))))
+#set ($V = $q.add($rfu.eq("status", 0)))
+#set ($V = $q.add($rfu.in("userId", $res1)))
+#set ($V = $q.add($rfu.between("createDate", $monthago.getTime(), $now.getTime())))
+#set ($V = $q.setProjection($pfu.projectionList().add($pfu.groupProperty("userId")).add($pfu.alias($pfu.rowCount(), "pageCount"))))
+
+#foreach ($resobj in $wikiPageLocalService.dynamicQuery($q))
+	#set ($userId = $resobj.get(0))
+	#set ($pageCount = $resobj.get(1))
+	#set ($V = $wikisedited.put($userId, $pageCount))
+#end
+
+## plugins
+#set ($pluginscontributed = $portal.getClass().forName("java.util.HashMap").newInstance())
+#set ($q = $dqfu.forClass($scProductVersionClass))
+#set ($V = $q.add($rfu.eq("companyId", $getterUtil.getLong($companyId))))
+#set ($V = $q.add($rfu.in("userId", $res1)))
+#set ($V = $q.add($rfu.between("createDate", $monthago.getTime(), $now.getTime())))
+#set ($V = $q.setProjection($pfu.projectionList().add($pfu.groupProperty("userId")).add($pfu.alias($pfu.rowCount(), "pluginCount"))))
+
+#foreach ($resobj in $scProductVersionLocalService.dynamicQuery($q))
+	#set ($userId = $resobj.get(0))
+	#set ($pluginCount = $resobj.get(1))
+	#set ($V = $pluginscontributed.put($userId, $pluginCount))
+#end
+
+## user groups
+#set ($usergroups = $portal.getClass().forName("java.util.HashMap").newInstance())
+#set ($projects = $portal.getClass().forName("java.util.HashMap").newInstance())
+#set ($teams = $teamLocalService.getTeams(-1, -1))
+#foreach ($team in $teams)
+	#if ($team.getName().toLowerCase().contains("user group"))
+		#set ($params = $portal.getClass().forName("java.util.LinkedHashMap").newInstance())
+		#set ($V = $params.put("usersTeams", $team.getTeamId()))
+		#set ($V = $params.put("usersGroups", $team.getGroupId()))
+		#set ($members = $userLocalService.search($getterUtil.getLong($companyId), "", true, $params, -1, -1, $obc))
+		#foreach ($member in $members)
+			#if ($usergroups.containsKey($member.getUserId()))
+				#set ($curval = $usergroups.get($member.getUserId()))
+				#set ($newval = $curval + 1)
+				#set ($V = $usergroups.put($member.getUserId(), $newval))
+			#else
+				#set ($V = $usergroups.put($member.getUserId(), 1))
+			#end
+		#end
+	#elseif ($team.getName().toLowerCase().contains("project team"))
+		#set ($params = $portal.getClass().forName("java.util.LinkedHashMap").newInstance())
+		#set ($V = $params.put("usersTeams", $team.getTeamId()))
+		#set ($V = $params.put("usersGroups", $team.getGroupId()))
+		#set ($members = $userLocalService.search($getterUtil.getLong($companyId), "", true, $params, -1, -1, $obc))
+		#foreach ($member in $members)
+			#if ($projects.containsKey($member.getUserId()))
+				#set ($curval = $projects.get($member.getUserId()))
+				#set ($newval = $curval + 1)
+				#set ($V = $projects.put($member.getUserId(), $newval))
+			#else
+				#set ($V = $projects.put($member.getUserId(), 1))
+			#end
+		#end
+	#end
+#end
+
+
+
+<table border="1">
+	<thead>
+	<tr>
+		<th>Name</th>
+		<th>User ID</th>
+		<th>Email</th>
+		<th>Posts</th>
+		<th>Answers</th>
+		<th>Wikis Created</th>
+		<th>Wikis Edited</th>
+		<th>Issues Filed</th>
+		<th>Issues Contributed</th>
+		<th>Plugins Contributed</th>
+		<th>User Groups</th>
+		<th>Projects</th>
+	</tr>
+	</thead>
+	#foreach ($userid in $res1)
+		#set ($user = $userLocalService.getUser($userid))
+		#if ($posts.containsKey($userid))
+			#set ($numposts = $posts.get($userid))
+		#else
+			#set ($numposts = 0)
+		#end
+		#if ($answers.containsKey($userid))
+			#set ($numanswers = $answers.get($userid))
+		#else
+			#set ($numanswers = 0)
+		#end
+		#if ($wikiscreated.containsKey($userid))
+			#set ($numwikicreate = $wikiscreated.get($userid))
+		#else
+			#set ($numwikicreate = 0)
+		#end
+		#if ($wikisedited.containsKey($userid))
+			#set ($numwikiedit = $wikisedited.get($userid))
+		#else
+			#set ($numwikiedit = 0)
+		#end
+		#if ($wikisedited.containsKey($userid))
+			#set ($numwikiedit = $wikisedited.get($userid))
+		#else
+			#set ($numwikiedit = 0)
+		#end
+		#if ($pluginscontributed.containsKey($userid))
+			#set ($numplugins = $pluginscontributed.get($userid))
+		#else
+			#set ($numplugins = 0)
+		#end
+		#if ($usergroups.containsKey($userid))
+			#set ($numusergroups = $usergroups.get($userid))
+		#else
+			#set ($numusergroups = 0)
+		#end
+		#if ($projects.containsKey($userid))
+			#set ($numprojects = $projects.get($userid))
+		#else
+			#set ($numprojects = 0)
+		#end
+
+		<tr>
+			<td>$htmlUtil.escape($user.getFullName())</td>
+			<td>$htmlUtil.escape($user.getScreenName())</td>
+			<td>$htmlUtil.escape($user.getEmailAddress())</td>
+			<td>$numposts</td>
+			<td>$numanswers</td>
+			<td>$numwikicreate</td>
+			<td>$numwikiedit</td>
+			<td>0</td>
+			<td>0</td>
+			<td>$numplugins</td>
+			<td>$numusergroups</td>
+			<td>$numprojects</td>
+		</tr>
+	#end
+</table>
+
+#foreach ($userid in $res1)
+	#set ($user = $userLocalService.getUser($userid))
+	$htmlUtil.escape($user.getEmailAddress()),
+#end

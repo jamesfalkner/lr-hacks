@@ -1,0 +1,19 @@
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'biz.aQute.bnd:biz.aQute.bnd.gradle:3.0.0'
+    }
+}
+
+subprojects {
+    repositories {
+        mavenCentral()
+        maven {
+            url "https://repository.liferay.com/nexus/content/groups/liferay-ce/"
+        }
+    }
+}

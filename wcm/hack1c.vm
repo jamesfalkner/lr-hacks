@@ -1,0 +1,39 @@
+#if ($request.lifecycle == "RENDER_PHASE")
+<em>Demo 2: Long-running process that doesn't hang</em>
+
+<h1>Hello, Liferay!</h1>
+<img src="/image/company_logo?img_id=0&amp;t=1446424935913" width="100">
+<h3>Didn't take very long, did it?</h3>
+
+  <div id="result">Major computation in progress...</div>
+
+  <script type="text/javascript">
+
+	  AUI().use(
+	      "aui-base", "aui-io-plugin", "aui-io-request",
+	      function (A) {
+		      A.io.request(
+							'${request.resource-url}',
+			  {
+				  dataType: "json",
+				  on: {
+					  success: function (event, id, obj) {
+						  var responseData = this.get("responseData");
+							document.getElementById('result').innerHTML = ('<code>Time: ' + responseData.time + 'ms</code>');
+					  }
+				  }
+			  });
+			});
+
+  </script>
+
+#elseif ($request.lifecycle == "RESOURCE_PHASE")
+
+## long-running process that only runs if the resource URL is accessed
+  #set ($start = $dateUtil.newDate())
+  #foreach ($i in [1..15000000])
+  #end
+  #set ($elapsed = $dateUtil.newDate().getTime() - $start.getTime())
+
+	{ "time" : $elapsed }
+#end

@@ -1,0 +1,3 @@
+Bundle-Activator: org.amdatu.dependencygraph.Activator
+Private-Package: org.amdatu.dependencygraph,\
+	org.amdatu.dependencygraph.json

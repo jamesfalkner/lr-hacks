@@ -1,0 +1,323 @@
+## WCM Expando Browser Demo
+#* @vtlvariable name="pns" type="java.lang.String" *#
+#* @vtlvariable name="portal" type="com.liferay.portal.util.Portal" *#
+#* @vtlvariable name="getterUtil" type="com.liferay.portal.kernel.util.GetterUtil" *#
+#* @vtlvariable name="stringUtil" type="com.liferay.portal.kernel.util.StringUtil" *#
+#* @vtlvariable name="dateUtil" type="com.liferay.portal.kernel.util.DateUtil" *#
+#* @vtlvariable name="groupId" type="java.lang.String" *#
+#* @vtlvariable name="locale" type="java.util.Locale" *#
+#* @vtlvariable name="companyId" type="java.lang.String" *#
+#* @vtlvariable name="scopeGroupId" type="java.lang.String" *#
+#* @vtlvariable name="themeDisplay" type="com.liferay.portal.theme.ThemeDisplay" *#
+#* @vtlvariable name="languageUtil" type="com.liferay.portal.kernel.language.LanguageUtil" *#
+#* @vtlvariable name="request" type="java.util.Map<java.lang.String, java.lang.String>" *#
+#* @vtlvariable name="parameters" type="java.util.Map<java.lang.String, java.lang.String>" *#
+#* @vtlvariable name="httpUtil" type="com.liferay.portal.kernel.util.HttpUtil" *#
+#* @vtlvariable name="htmlUtil" type="com.liferay.portal.kernel.util.HtmlUtil" *#
+#* @vtlvariable name="logFactory" type="com.liferay.portal.kernel.log.LogFactoryUtil" *#
+#* @vtlvariable name="log" type="com.liferay.portal.kernel.log.Log" *#
+#* @vtlvariable name="jsonFactoryUtil" type="com.liferay.portal.kernel.json.JSONFactoryUtil" *#
+#* @vtlvariable name="tableJson" type="com.liferay.portal.kernel.json.JSONObject" *#
+#* @vtlvariable name="resultArr" type="com.liferay.portal.kernel.json.JSONArray" *#
+#* @vtlvariable name="resultObj" type="com.liferay.portal.kernel.json.JSONObject" *#
+#* @vtlvariable name="className" type="java.lang.String" *#
+#* @vtlvariable name="tableName" type="java.lang.String" *#
+#* @vtlvariable name="expandoTableLocalService" type="com.liferay.portlet.expando.service.ExpandoTableLocalService" *#
+#* @vtlvariable name="expandoColumnLocalService" type="com.liferay.portlet.expando.service.ExpandoColumnLocalService" *#
+#* @vtlvariable name="expandoRowLocalService" type="com.liferay.portlet.expando.service.ExpandoRowLocalService" *#
+#* @vtlvariable name="expandoValueLocalService" type="com.liferay.portlet.expando.service.ExpandoValueLocalService" *#
+#* @vtlvariable name="serviceLocator" type="com.liferay.portal.template.ServiceLocator" *#
+#* @vtlvariable name="userLocalService" type="com.liferay.portal.service.UserLocalService" *#
+#* @vtlvariable name="resultSet" type="java.util.HashSet" *#
+
+#set ($pns = $request.portlet-namespace)
+#set ($scopeGroupId = $getterUtil.getLong(${request.theme-display.scope-group-id}))
+
+#if ($request.lifecycle == "RENDER_PHASE")
+<body onload="${pns}getClassNames();">
+<article>
+	<div style="text-align: center;float:left;margin-right:50px">
+		<label for="${pns}classNameSelect">Expando Class</label>
+		<select style="width:auto" id="${pns}classNameSelect" onchange="${pns}getTableNames();">
+		</select>
+	</div>
+
+	<div style="text-align: center">
+		<label for="${pns}tableNameSelect">Expando Table</label>
+		<select style="width:auto" id="${pns}tableNameSelect" onchange="${pns}getData();">
+		</select>
+	</div>
+	<div id="${pns}dataTable"></div>
+
+	<script type="text/javascript">
+		function ${pns}getClassNames() {
+                    ${pns}auiXmlHttpRequest('${request.resource-url}', {
+				"${pns}cmd": 'getTableClassNames'
+			}, function (result) {
+				var sel = document.getElementById("${pns}classNameSelect");
+				sel.innerHTML = '';
+				result.filter(function (elem, pos, self) {
+					return self.indexOf(elem) == pos;
+				}).forEach(function (el, idx) {
+					var opt = document.createElement("option");
+					opt.value = el;
+					opt.innerHTML = el;
+					sel.appendChild(opt);
+					if (idx == 0) {
+						opt.selected = true;
+					}
+				});
+				if (result[0]) {
+                                    ${pns}getTableNames();
+				}
+			}, function (errmsg) {
+				alert(errmsg);
+			});
+
+		}
+
+		function ${pns}getTableNames() {
+
+			var sel = document.getElementById("${pns}classNameSelect");
+			var className = sel.options[sel.selectedIndex].value;
+
+                    ${pns}auiXmlHttpRequest('${request.resource-url}', {
+				"${pns}cmd": 'getTableNamesForClassName',
+				"${pns}className": className
+			}, function (result) {
+				var sel = document.getElementById("${pns}tableNameSelect");
+				sel.innerHTML = '';
+
+				result.forEach(function (el, idx) {
+					var opt = document.createElement("option");
+					opt.value = el;
+					opt.innerHTML = el;
+					if (idx == 0) opt.selected = true;
+					sel.appendChild(opt);
+				});
+
+				if (result[0]) {
+                                    ${pns}getData();
+				}
+			}, function (errmsg) {
+				alert(errmsg);
+			});
+
+		}
+
+		function ${pns}getData() {
+
+			var csel = document.getElementById("${pns}classNameSelect");
+			var className = csel.options[csel.selectedIndex].value;
+
+			var tsel = document.getElementById("${pns}tableNameSelect");
+			var tableName = tsel.options[tsel.selectedIndex].value;
+
+                    ${pns}auiXmlHttpRequest('${request.resource-url}', {
+				"${pns}cmd": 'getData',
+				"${pns}className": className,
+				"${pns}tableName": tableName
+			}, function (result) {
+                      ${pns}populateDataTable(result);
+			}, function (errmsg) {
+				alert(errmsg);
+			});
+		}
+
+		function ${pns}populateDataTable(data) {
+			var dataTable = document.getElementById('${pns}dataTable');
+			dataTable.innerHTML = '';
+			var csel = document.getElementById("${pns}classNameSelect");
+			var className = csel.options[csel.selectedIndex].value;
+
+			var tsel = document.getElementById("${pns}tableNameSelect");
+			var tableName = tsel.options[tsel.selectedIndex].value;
+
+			YUI().use(
+			    'aui-datatable', 'aui-datatype', 'datatable-sort', "datatable-formatters",
+			    function (Y) {
+				    var cols = data.columns.map(function (el) {
+
+					    return {
+						    editor: new Y.TextAreaCellEditor(),
+						    key: el,
+						    sortable: true,
+						    allowHTML: true
+					    }
+
+				    });
+				    var dt = new Y.DataTable(
+					{
+						columns: cols,
+						data: data.rows,
+						editEvent: 'dblclick',
+						caption: 'Expando Browser Result'
+					}
+				    ).render(dataTable);
+				    dt.get('boundingBox').unselectable();
+				    dt.after("*:change", function (e) {
+					    var classPK = e.target.get("ID");
+					    for (var columnName in e.changed) {
+						    if (!e.changed.hasOwnProperty(columnName)) continue;
+						    var valObj = e.changed[columnName];
+						    var oldVal = valObj.prevVal;
+						    var newVal = valObj.newVal;
+
+								${pns}auiXmlHttpRequest('${request.resource-url}', {
+							    "${pns}cmd": 'setValue',
+							    "${pns}className": className,
+							    "${pns}tableName": tableName,
+							    "${pns}columnName": columnName,
+							    "${pns}classPK": classPK,
+							    "${pns}newVal": newVal
+						    }, function (result) {
+							    console.log("changed " + oldVal + " to " + newVal);
+						    }, function (errmsg) {
+							    alert(errmsg);
+						    });
+					    }
+				    })
+			    }
+			);
+
+		}
+
+		function ${pns}auiXmlHttpRequest(url, data, onSuccess, onError) {
+
+			AUI().use(
+			    "aui-base", "aui-io-plugin", "aui-io-request",
+			    function (A) {
+				    A.io.request(
+					url,
+					{
+						data: data,
+						dataType: "json",
+						on: {
+							success: function (event, id, obj) {
+								var responseData = this.get("responseData");
+								var stat = responseData.stat;
+								if (stat == 'ok') {
+									onSuccess(responseData.result);
+								} else {
+									onError("error: " + stat);
+								}
+							},
+							failure: function (event, id, obj) {
+								onError("error: " + JSON.stringify(event));
+							}
+						}
+					}
+				    );
+			    }
+			);
+		}
+
+	</script>
+
+</article>
+</body>
+
+#elseif ($request.lifecycle == "RESOURCE_PHASE")
+  #set ($userLocalService = $serviceLocator.findService("com.liferay.portal.service.UserLocalService"))
+  #set ($cmd = $request.parameters.cmd)
+  #if ($validator.isNull($cmd))
+  {"stat":"error"}
+  #elseif ($cmd == "setValue")
+    #set ($className = $request.parameters.className)
+    #set ($tableName = $request.parameters.tableName)
+    #set ($columnName = $request.parameters.columnName)
+    #set ($classPK = $request.parameters.classPK)
+    #set ($newVal = $request.parameters.newVal)
+    #set ($existing = $expandoValueLocalService.getValue($getterUtil.getLong($companyId), $className, $tableName, $columnName, $getterUtil.getLong($classPK)))
+    #if ($validator.isNotNull($existing))
+      #set ($V = $existing.setString($newVal))
+      #set ($V = $expandoValueLocalService.updateExpandoValue($existing))
+    #end
+    #set ($newVal = $dateUtil.newDate())
+    #set ($columnName = "date")
+    #set ($existing = $expandoValueLocalService.getValue($getterUtil.getLong($companyId), $className, $tableName, $columnName, $getterUtil.getLong($classPK)))
+    #if ($validator.isNotNull($existing))
+      #set ($V = $existing.setDate($newVal))
+      #set ($V = $expandoValueLocalService.updateExpandoValue($existing))
+    #end
+
+  {
+  "stat": "ok"
+  }
+  #elseif ($cmd == "getTableClassNames")
+    #set ($resultArr = $jsonFactoryUtil.createJSONArray())
+    #set ($tables = $expandoTableLocalService.getExpandoTables(-1, -1))
+    #foreach ($table in $tables)
+      #set ($V = $resultArr.put($table.getClassName()))
+    #end
+  {
+  "stat": "ok",
+  "result": $resultArr
+  }
+  #elseif ($cmd == "getTableNamesForClassName")
+    #set ($resultArr = $jsonFactoryUtil.createJSONArray())
+    #set ($className = $request.parameters.className)
+    #set ($tables = $expandoTableLocalService.getTables($getterUtil.getLong($companyId), $className))
+    #foreach ($table in $tables)
+      #set ($V = $resultArr.put($table.getName()))
+    #end
+  {
+  "stat": "ok",
+  "result": $resultArr
+  }
+  #elseif ($cmd == "getData")
+    #set ($resultObj = $jsonFactoryUtil.createJSONObject())
+    #set ($className = $request.parameters.className)
+    #set ($tableName = $request.parameters.tableName)
+
+    #set ($cols = $expandoColumnLocalService.getColumns($getterUtil.getLong($companyId), $className, $tableName))
+    #set ($colsResult = $jsonFactoryUtil.createJSONArray())
+    #set ($V = $colsResult.put("Helpful Link"))
+    #set ($V = $colsResult.put("ID"))
+    #foreach ($col in $cols)
+      #set ($V = $colsResult.put($col.getName()))
+    #end
+    #set ($V = $resultObj.put("columns", $colsResult))
+
+    #set ($rows = $expandoRowLocalService.getRows($getterUtil.getLong($companyId), $className, $tableName, -1, -1))
+    #set ($rowsResult = $jsonFactoryUtil.createJSONArray())
+
+    #foreach ($row in $rows)
+      #set ($rowObj = $jsonFactoryUtil.createJSONObject())
+
+      #set ($desc = $className + "(" + $row.getClassPK() + ")")
+      #set ($Q = $escapeTool.q)
+
+    ## add renderers for other classes in this if/else if you want to see helpful links for other types
+      #if ($className.equals("com.liferay.portal.model.User"))
+        #set ($user = $userLocalService.getUser($row.getClassPK()))
+        #set ($desc = "<a href=${Q}/web/" + $user.getScreenName() + "${Q}>" + $user.getFullName() + "</a>")
+      #elseif ($className.equals("com.liferay.events.Geo"))
+        #set ($lat = $expandoValueLocalService.getValue($getterUtil.getLong($companyId), $className, $tableName, "lat", $row.getClassPK()))
+        #set ($lng = $expandoValueLocalService.getValue($getterUtil.getLong($companyId), $className, $tableName, "lng", $row.getClassPK()))
+        #set ($desc = "<a onclick=${Q}Liferay.fire('locationUpdate', {content:'<code>$row.getClassPK()</code>',
+		position: {lat:${lat.getString()}, lng: ${lng.getString()} }});${Q}>Location</a>")
+      #end
+
+      #set ($V = $rowObj.put("Helpful Link", $desc))
+      #set ($V = $rowObj.put("ID", $row.getClassPK()))
+
+      #set ($rowVals = $expandoValueLocalService.getRowValues($row.getRowId()))
+      #foreach ($rowVal in $rowVals)
+        #set ($colName = $rowVal.getColumn().getName())
+        #if ($rowVal.getColumn().getType() == 3)
+          #set ($V = $rowObj.put($colName, $rowVal.getDate().toLocaleString()))
+        #else
+          #set ($V = $rowObj.put($colName, $rowVal.getData()))
+        #end
+      #end
+      #set ($V = $rowsResult.put($rowObj))
+    #end
+
+    #set ($V = $resultObj.put("rows", $rowsResult))
+  {
+  "stat": "ok",
+  "result": $resultObj
+  }
+  #end
+#end

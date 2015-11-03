@@ -1,0 +1,288 @@
+#* @vtlvariable name="portletNamespace" type="java.lang.String" *#
+#* @vtlvariable name="portal" type="com.liferay.portal.util.Portal" *#
+#* @vtlvariable name="getterUtil" type="com.liferay.portal.kernel.util.GetterUtil" *#
+#* @vtlvariable name="stringUtil" type="com.liferay.portal.kernel.util.StringUtil" *#
+#* @vtlvariable name="groupId" type="java.lang.String" *#
+#* @vtlvariable name="sectionMembers" type="java.lang.String" *#
+#* @vtlvariable name="locale" type="java.util.Locale" *#
+#* @vtlvariable name="companyId" type="java.lang.String" *#
+#* @vtlvariable name="scopeGroupId" type="java.lang.String" *#
+#* @vtlvariable name="sectionName" type="java.lang.String" *#
+#* @vtlvariable name="params" type="java.util.LinkedHashMap" *#
+#* @vtlvariable name="users" type="java.util.List" *#
+#* @vtlvariable name="user" type="com.liferay.portal.model.User" *#
+#* @vtlvariable name="themeDisplay" type="com.liferay.portal.theme.ThemeDisplay" *#
+#* @vtlvariable name="languageUtil" type="com.liferay.portal.kernel.language.LanguageUtil" *#
+#* @vtlvariable name="request" type="java.util.Map" *#
+#* @vtlvariable name="httpUtil" type="com.liferay.portal.kernel.util.HttpUtil" *#
+#* @vtlvariable name="htmlUtil" type="com.liferay.portal.kernel.util.HtmlUtil" *#
+#* @vtlvariable name="obc" type="com.liferay.portal.util.comparator.UserLastNameComparator" *#
+#* @vtlvariable name="serviceLocator" type="com.liferay.portal.velocity.ServiceLocator" *#
+#* @vtlvariable name="teamLocalService" type="com.liferay.portal.service.TeamLocalServiceUtil" *#
+#* @vtlvariable name="assetTagLocalService" type="com.liferay.portlet.asset.service.AssetTagLocalServiceUtil" *#
+#* @vtlvariable name="assetEntryLocalService" type="com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil" *#
+#* @vtlvariable name="tag" type="com.liferay.portlet.asset.model.AssetTag" *#
+#* @vtlvariable name="tags" type="java.util.List" *#
+#* @vtlvariable name="userLocalService" type="com.liferay.portal.service.UserLocalServiceUtil" *#
+#* @vtlvariable name="groupIdCriteria" type="com.liferay.portal.kernel.dao.orm.Criterion" *#
+#* @vtlvariable name="groupIdProp" type="com.liferay.portal.kernel.dao.orm.Property" *#
+#* @vtlvariable name="threadMap" type="java.util.Map<java.lang.Long, java.lang.Integer>" *#
+#* @vtlvariable name="q" type="com.liferay.portal.kernel.dao.orm.DynamicQuery" *#
+#* @vtlvariable name="q2" type="com.liferay.portal.kernel.dao.orm.DynamicQuery" *#
+#* @vtlvariable name="rfu" type="com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil" *#
+#* @vtlvariable name="pfu" type="com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil" *#
+#* @vtlvariable name="ofu" type="com.liferay.portal.kernel.dao.orm.OrderFactoryUtil" *#
+#* @vtlvariable name="msgs" type="java.util.List<com.liferay.portlet.messageboards.model.MBMessage>" *#
+#* @vtlvariable name="mlist" type="java.util.List<java.lang.Integer>" *#
+#* @vtlvariable name="assets" type="java.util.List<com.liferay.portlet.asset.model.AssetEntry>" *#
+#* @vtlvariable name="asset" type="com.liferay.portlet.asset.model.AssetEntry" *#
+#* @vtlvariable name="now" type="com.liferay.portlet.social.model.SocialActivityCounter" *#
+#* @vtlvariable name="monthago" type="java.util.Calendar" *#
+#set ($portletNamespace = $request.portlet-namespace)
+#set ($scopeGroupId = $getterUtil.getLong($request.theme-display.scope-group-id))
+#set ($listClass = $portal.getClass().forName("java.util.ArrayList"))
+#set ($hashSetClass = $portal.getClass().forName("java.util.HashSet"))
+#set ($assetEntryClass = $portal.getClass().forName("com.liferay.portlet.asset.model.AssetEntry"))
+#set ($socialCounterClass = $portal.getClass().forName("com.liferay.portlet.social.model.SocialActivityCounter"))
+
+#set ($portalBeanLocator = $portal.getClass().forName("com.liferay.portal.kernel.bean.PortalBeanLocatorUtil"))
+#set ($assetTagLocalService = $portalBeanLocator.locate("com.liferay.portlet.asset.service.AssetTagLocalService.velocity"))
+#set ($assetEntryLocalService = $portalBeanLocator.locate("com.liferay.portlet.asset.service.AssetEntryLocalService.velocity"))
+#set ($userLocalService = $portalBeanLocator.locate("com.liferay.portal.service.UserLocalService.velocity"))
+#set ($socialActivityCounterLocalService = $portalBeanLocator.locate("com.liferay.portlet.social.service.SocialActivityCounterLocalService.velocity"))
+
+#set ($dqfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil"))
+#set ($pfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil"))
+#set ($ofu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.OrderFactoryUtil"))
+#set ($rfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil"))
+#set ($companyIdLong = $getterUtil.getLong($companyId))
+
+#set ($tags = $listClass.newInstance())
+#set ($newtags = $hashSetClass.newInstance())
+#set ($usertags = $portal.getClass().forName("java.util.HashMap").newInstance())
+
+
+#set ($FURL = $request.attributes.FRIENDLY_URL)
+#set ($uida = $FURL.split("/"))
+#set ($user = $userLocalService.getUserByScreenName($companyIdLong, $uida.get(2)))
+#if ($user)
+	#foreach ($groupid in $user.getGroupIds())
+
+		#* get all assets of user *#
+		#set ($q = $dqfu.forClass($assetEntryClass))
+		#set ($V = $q.add($rfu.eq("userId", $user.getUserId())))
+		#set ($V = $q.add($rfu.eq("groupId", $groupid)))
+		#set ($V = $q.setProjection($pfu.projectionList().add($pfu.property("classNameId")).add($pfu.property("classPK"))))
+		#set ($res = $assetEntryLocalService.dynamicQuery($q))
+		#if (!$res.isEmpty())
+			#set ($classIds = $portal.getClass().forName("java.util.HashSet").newInstance())
+			#set ($classPKs = $portal.getClass().forName("java.util.ArrayList").newInstance())
+
+			#foreach ($resobj in $res)
+				#set ($V = $classIds.add($resobj.get(0)))
+				#set ($V = $classPKs.add($resobj.get(1)))
+			#end
+
+			#* for each asset, add asset popularity to tag map based on tag name *#
+			#set ($q = $dqfu.forClass($socialCounterClass))
+			#set ($V = $q.add($rfu.eq("groupId", $groupid)))
+			#set ($V = $q.add($rfu.eq("name", "popularity")))
+			#set ($V = $q.add($rfu.eq("ownerType", 2)))
+			#set ($V = $q.add($rfu.in("classNameId", $classIds)))
+			#set ($V = $q.add($rfu.in("classPK", $classPKs)))
+			#set ($V = $q.setProjection($pfu.projectionList().add($pfu.groupProperty("classNameId")).add($pfu.groupProperty("classPK")).add($pfu.sum("currentValue"))))
+			#set ($res2 = $socialActivityCounterLocalService.dynamicQuery($q))
+			#set ($scoremap = $portal.getClass().forName("java.util.HashMap").newInstance())
+
+			#foreach ($res2obj in $res2)
+				#set ($V = $scoremap.put($res2obj.get(1), $res2obj.get(2)))
+			#end
+
+			#foreach ($resobj in $res)
+				#set ($classId = $resobj.get(0))
+				#set ($classPK = $resobj.get(1))
+				#foreach ($tagname in $assetTagLocalService.getTagNames($classId, $classPK))
+					#if ($scoremap.containsKey($classPK))
+						#if ($usertags.containsKey($tagname))
+							#set ($oldtagscore = $usertags.get($tagname))
+							#set ($workaround = 0 - $scoremap.get($classPK))
+							#set ($newtagscore = $oldtagscore - $workaround)
+							#set ($V = $usertags.put($tagname, $newtagscore))
+						#else
+							#set ($V = $usertags.put($tagname, $scoremap.get($classPK)))
+						#end
+					#else
+						#set ($V = $usertags.put($tagname, 0))
+					#end
+				#end
+			#end
+		#end
+	#end
+#else
+	#set ($newtags = $assetTagLocalService.getSocialActivityCounterOffsetTags($getterUtil.getLong($scopeGroupId),
+	"popularity", -12, 1))
+#end
+
+#set ($minvalue = 400000)
+#set ($maxvalue = 0)
+
+#if ($user)
+	#foreach ($tag in $usertags.keySet())
+		#if ($usertags.get($tag) < $minvalue)
+			#set ($minvalue = $usertags.get($tag))
+		#end
+		#if ($usertags.get($tag) > $maxvalue)
+			#set ($maxvalue = $usertags.get($tag))
+		#end
+	#end
+#else
+	#foreach ($tag in $newtags)
+		#if ($tag.getAssetCount() < $minvalue)
+			#set ($minvalue = $tag.getAssetCount())
+		#end
+		#if ($tag.getAssetCount() > $maxvalue)
+			#set ($maxvalue = $tag.getAssetCount())
+		#end
+	#end
+#end
+
+<script type="text/javascript" src="/social-driver-portlet/js/js-cumulus.min.js"></script>
+
+<style type="text/css">
+	#tagCloud1 {
+		padding: 0px;
+	}
+
+	#tagCloud2 {
+		border-bottom: 1px solid silver;
+		margin-bottom: 5px;
+		padding-bottom: 5px;
+		width: 100%; /* needed for IE to calc width */
+	}
+
+	#widget {
+		border: 1px solid silver;
+		margin: 5px;
+		padding: 5px;
+		text-align: center;
+		width: 240px;
+	}
+
+	#widget h4 {
+		border-bottom: 1px solid silver;
+		color: #999999;
+		font-size: 15px;
+		margin: 0 0 5px;
+		padding-bottom: 5px;
+	}
+
+	#jsCumulus1 {
+		color: #86C25E;
+	}
+
+	#jsCumulus2 {
+		color: #50B5D5;
+	}
+
+	.tagCloud {
+		background: transparent url("/social-driver-portlet/js/bg_blue.gif") 0 0 repeat;
+		border-radius: 25px;
+	}
+
+	.tagCloud ul, .tagCloud li {
+		list-style: none;
+		margin: 0;
+		padding: 0;
+	}
+
+	.tagCloud .tagClass img {
+		border: 0 none;
+	}
+
+	.tagCloud .tagClass a {
+		color: #fff;
+		font-family: Sans;
+		font-weight: normal;
+		padding: 3px;
+		text-align: center;
+		text-decoration: none;
+		vertical-align: middle;
+	}
+
+	.tagCloud .tagClass a:hover {
+		border: solid 1px #ffdb00;
+		color: #ffdb00;
+		text-decoration: none;
+	}
+</style>
+
+<div id="tagCloud1"></div>
+<script type="text/javascript">
+
+	function doit() {
+		AUI().use('liferay-portlet-url', function(A) {
+			function genURL(tag) {
+				var rurl = "$request.render-url";
+				return rurl.concat("&tags=", tag);
+			}
+
+			/* TagCloud 1 */
+			var tags = [
+				#set ($range = $maxvalue - $minvalue)
+				#set ($ranged = $getterUtil.getDouble($range))
+				#if ($user)
+					#foreach ($tag in $usertags.keySet())
+						#set ($pen = $usertags.get($tag) - $minvalue)
+						#set ($percent = $getterUtil.getDouble($pen) / $ranged)
+						#set ($weight = $percent * 100.0)
+						#set ($weighti = $getterUtil.getInteger($weight))
+
+						new Tag("$tag", $weighti, genURL("$tag")),
+					#end
+				#else
+					#foreach ($tag in $newtags)
+						#set ($pen = $tag.getAssetCount() - $minvalue)
+						#set ($percent = $getterUtil.getDouble($pen) / $ranged)
+						#set ($weight = $percent * 100.0)
+						#set ($weighti = $getterUtil.getInteger($weight))
+
+						new Tag("$tag.getName()", $weighti, genURL("$tag.getName()")),
+					#end
+				#end
+				new Tag("Foo", 0)
+
+			];
+
+			tags.sort(function (b, a) {
+				if (a.rank < b.rank) return -1;
+				if (a.rank > b.rank) return 1;
+				return 0;
+			});
+			tags.length = Math.min(25, tags.length);
+
+			var minvalue = 232432423;
+			var maxvalue = 0;
+			var i;
+			var weight;
+			for (i = 0; i < tags.length; i -= -1) {
+				weight = tags[i].rank;
+				if (weight < minvalue) minvalue = weight;
+				if (weight > maxvalue) maxvalue = weight;
+			}
+
+			var range = maxvalue - minvalue;
+			for (i = 0; i < tags.length; i -= -1) {
+				var weight = tags[i].rank;
+				var new_weight = ((weight - minvalue) / range);
+				tags[i].rank = new_weight;
+			}
+
+
+			var tagCloud1 = new TagCloud(tags, 250, 250);
+			tagCloud1.Distribute(document.getElementById("tagCloud1")).Animate();
+		});
+
+	}
+
+</script>
+<body onload="doit();"></body>

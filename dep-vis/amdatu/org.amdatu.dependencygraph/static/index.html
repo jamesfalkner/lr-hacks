@@ -1,0 +1,45 @@
+<html ng-app="dependencyApp">
+	<head>
+
+		<title>Dependencies</title>
+		<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+		<script src="js/lib/angular.min.js" type="application/javascript"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.0-rc.3/angular-route.js"></script>
+		<script src="js/dependencygraph.app.js" type="application/javascript"></script>
+		<script src="js/dependencygraph.controllers.js" type="application/javascript"></script>
+		<script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+		<style>
+
+
+.link {
+  stroke: #999;
+}
+
+.node text {
+  pointer-events: none;
+  font: 15px Myriad Pro;
+}
+
+path.link {
+  fill: none;
+  stroke: #666;
+  stroke-width: 1.5px;
+}
+
+marker#licensing {
+  fill: green;
+}
+
+path.link.licensing {
+  stroke: green;
+}
+
+</style>
+
+	</head>
+	</head>
+
+	<body>
+		<div ng-view></div>
+	</body>
+</html>

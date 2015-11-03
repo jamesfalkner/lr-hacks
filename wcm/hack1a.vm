@@ -1,0 +1,7 @@
+#set ($userLocalService = $serviceLocator.findService("com.liferay.portal.service.UserLocalService"))
+
+<em>Demo 1: Super-simple example of a WCM app</em>
+<h1>Hello, Liferay!</h1>
+<img src="/image/company_logo?img_id=0&amp;t=1446424935913" width="100">
+
+<h3>User Count: $userLocalService.getUsersCount()</h3>

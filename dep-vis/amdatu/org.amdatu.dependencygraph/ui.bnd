@@ -1,0 +1,4 @@
+Include-Resource: META-INF/resources=static
+X-Web-Resource-Version: 1.0
+X-Web-Resource: /ui;/static
+Web-ContextPath: /dependency-graph

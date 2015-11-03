@@ -1,0 +1,18 @@
+apply plugin: 'biz.aQute.bnd.builder'
+
+sourceCompatibility = 1.8
+
+version = 1.0
+
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile 'javax.portlet:portlet-api:2.0'
+    compile 'org.osgi:org.osgi.core:5.0.0'
+    compile 'org.osgi:org.osgi.enterprise:5.0.0'
+    compile 'javax.websocket:javax.websocket-api:1.1'
+    compile 'javax.servlet:servlet-api:2.5'
+    compile 'com.liferay.portal:portal-service:7.0.0-a1'
+    compile 'com.liferay:com.liferay.registry.api:1.0.0-SNAPSHOT'
+}

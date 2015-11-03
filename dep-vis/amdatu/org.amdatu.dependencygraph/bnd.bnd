@@ -1,0 +1,17 @@
+-runbundles: osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	org.apache.felix.dependencymanager.shell,\
+	org.apache.felix.gogo.shell,\
+	org.apache.felix.gogo.command,\
+	org.apache.felix.gogo.runtime,\
+	org.apache.felix.log
+-runee: JavaSE-1.6
+-runfw: org.apache.felix.framework
+-buildpath: osgi.core,\
+	osgi.cmpn,\
+	org.apache.felix.dependencymanager,\
+	junit.osgi,\
+	org.amdatu.web.rest.jaxrs,\
+	jackson-core-asl,\
+	jackson-mapper-asl
+-sub: *.bnd

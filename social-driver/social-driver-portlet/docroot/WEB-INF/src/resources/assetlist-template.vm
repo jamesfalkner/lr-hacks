@@ -1,0 +1,188 @@
+#* @vtlvariable name="portletNamespace" type="java.lang.String" *#
+#* @vtlvariable name="portal" type="com.liferay.portal.util.Portal" *#
+#* @vtlvariable name="getterUtil" type="com.liferay.portal.kernel.util.GetterUtil" *#
+#* @vtlvariable name="stringUtil" type="com.liferay.portal.kernel.util.StringUtil" *#
+#* @vtlvariable name="groupId" type="java.lang.String" *#
+#* @vtlvariable name="sectionMembers" type="java.lang.String" *#
+#* @vtlvariable name="locale" type="java.util.Locale" *#
+#* @vtlvariable name="companyId" type="java.lang.String" *#
+#* @vtlvariable name="scopeGroupId" type="java.lang.String" *#
+#* @vtlvariable name="sectionName" type="java.lang.String" *#
+#* @vtlvariable name="params" type="java.util.LinkedHashMap" *#
+#* @vtlvariable name="users" type="java.util.List" *#
+#* @vtlvariable name="user" type="com.liferay.portal.model.User" *#
+#* @vtlvariable name="themeDisplay" type="com.liferay.portal.theme.ThemeDisplay" *#
+#* @vtlvariable name="languageUtil" type="com.liferay.portal.kernel.language.LanguageUtil" *#
+#* @vtlvariable name="request" type="java.util.Map" *#
+#* @vtlvariable name="httpUtil" type="com.liferay.portal.kernel.util.HttpUtil" *#
+#* @vtlvariable name="htmlUtil" type="com.liferay.portal.kernel.util.HtmlUtil" *#
+#* @vtlvariable name="obc" type="com.liferay.portal.util.comparator.UserLastNameComparator" *#
+#* @vtlvariable name="serviceLocator" type="com.liferay.portal.velocity.ServiceLocator" *#
+#* @vtlvariable name="teamLocalService" type="com.liferay.portal.service.TeamLocalServiceUtil" *#
+#* @vtlvariable name="assetTagLocalService" type="com.liferay.portlet.asset.service.AssetTagLocalServiceUtil" *#
+#* @vtlvariable name="assetEntryLocalService" type="com.liferay.portlet.asset.service.AssetEntryLocalServiceUtil" *#
+#* @vtlvariable name="tag" type="com.liferay.portlet.asset.model.AssetTag" *#
+#* @vtlvariable name="tags" type="java.util.List" *#
+#* @vtlvariable name="userLocalService" type="com.liferay.portal.service.UserLocalServiceUtil" *#
+#* @vtlvariable name="groupIdCriteria" type="com.liferay.portal.kernel.dao.orm.Criterion" *#
+#* @vtlvariable name="groupIdProp" type="com.liferay.portal.kernel.dao.orm.Property" *#
+#* @vtlvariable name="threadMap" type="java.util.Map<java.lang.Long, java.lang.Integer>" *#
+#* @vtlvariable name="sortmap" type="java.util.HashMap<java.lang.Long, java.lang.Integer>" *#
+#* @vtlvariable name="q" type="com.liferay.portal.kernel.dao.orm.DynamicQuery" *#
+#* @vtlvariable name="q2" type="com.liferay.portal.kernel.dao.orm.DynamicQuery" *#
+#* @vtlvariable name="rfu" type="com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil" *#
+#* @vtlvariable name="pfu" type="com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil" *#
+#* @vtlvariable name="ofu" type="com.liferay.portal.kernel.dao.orm.OrderFactoryUtil" *#
+#* @vtlvariable name="msgs" type="java.util.List<com.liferay.portlet.messageboards.model.MBMessage>" *#
+#* @vtlvariable name="mlist" type="java.util.List<java.lang.Integer>" *#
+#* @vtlvariable name="assets" type="java.util.List<com.liferay.portlet.asset.model.AssetEntry>" *#
+#* @vtlvariable name="asset" type="com.liferay.portlet.asset.model.AssetEntry" *#
+#* @vtlvariable name="now" type="java.util.Calendar" *#
+#* @vtlvariable name="monthago" type="java.util.Calendar" *#
+#* @vtlvariable name="arfru" type="com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil" *#
+#* @vtlvariable name="socialActivityCounterLocalService" type="com.liferay.portlet.social.service.SocialActivityCounterLocalServiceUtil" *#
+#* @vtlvariable name="rau" type="com.liferay.portal.security.permission.ResourceActionsUtil" *#
+#set ($portletNamespace = $request.portlet-namespace)
+#set ($scopeGroupId = $getterUtil.getLong($request.theme-display.scope-group-id))
+#set ($listClass = $portal.getClass().forName("java.util.ArrayList"))
+#set ($hashSetClass = $portal.getClass().forName("java.util.HashSet"))
+#set ($assetEntryClass = $portal.getClass().forName("com.liferay.portlet.asset.model.AssetEntry"))
+
+#set ($portalBeanLocator = $portal.getClass().forName("com.liferay.portal.kernel.bean.PortalBeanLocatorUtil"))
+#set ($assetTagLocalService = $portalBeanLocator.locate("com.liferay.portlet.asset.service.AssetTagLocalService.velocity"))
+#set ($assetEntryLocalService = $portalBeanLocator.locate("com.liferay.portlet.asset.service.AssetEntryLocalService.velocity"))
+#set ($userLocalService = $portalBeanLocator.locate("com.liferay.portal.service.UserLocalService.velocity"))
+#set ($socialActivityCounterLocalService = $portalBeanLocator.locate("com.liferay.portlet.social.service.SocialActivityCounterLocalService.velocity"))
+
+#set ($dqfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil"))
+#set ($pfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil"))
+#set ($ofu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.OrderFactoryUtil"))
+#set ($rfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil"))
+#set ($arfru = $portal.getClass().forName("com.liferay.portlet.asset.AssetRendererFactoryRegistryUtil"))
+#set ($rau = $portal.getClass().forName("com.liferay.portal.security.permission.ResourceActionsUtil"))
+#set ($companyIdLong = $getterUtil.getLong($companyId))
+
+#set ($FURL = $request.attributes.FRIENDLY_URL)
+#set ($uida = $FURL.split("/"))
+#set ($user = $userLocalService.getUserByScreenName($companyIdLong, $uida.get(2)))
+
+#set ($q = $dqfu.forClass($assetEntryClass))
+#set ($V = $q.add($rfu.eq("visible", true)))
+
+#if ($user)
+	#set ($V = $q.add($rfu.eq("userId", $user.getUserId())))
+#else
+	#set ($V = $q.add($rfu.eq("groupId", $getterUtil.getLong($scopeGroupId))))
+#end
+
+#set ($res = $assetEntryLocalService.dynamicQuery($q))
+#if ($request.attributes.CURRENT_COMPLETE_URL.contains("tags="))
+	#set ($bi = $request.attributes.CURRENT_COMPLETE_URL.indexOf("tags="))
+	#set ($ei = $bi - -5)
+	#set ($reqTags = $request.attributes.CURRENT_COMPLETE_URL.substring($ei).split(","))
+#end
+
+#if ($reqTags)
+<p>Content with tag <em>$reqTags.get(0)</em></p>
+#end
+
+<div class="portlet-search aui-layout search-layout menu-column">
+<div class="aui-layout-content search-layout-content menu-column-content">
+<div style="width:100%;" class="aui-column result aui-column-last">
+<div class="aui-column-content aui-column-content-last result-content">
+<div class="lfr-search-container">
+<div class="yui3-widget aui-component aui-searchcontainer">
+<div class="results-grid aui-searchcontainer-content">
+<table class="taglib-search-iterator">
+<tbody>
+
+#set ($sortmap = $portal.getClass().forName("java.util.HashMap").newInstance())
+
+#foreach ($asset in $res)
+	#set ($cntr = $socialActivityCounterLocalService.fetchLatestActivityCounter($asset.getGroupId(), $asset.getClassNameId(), $asset.getClassPK(), "popularity", 2))
+	#if ($cntr)
+		#set ($assetScore = $cntr.getTotalValue())
+	#else
+		#set ($assetScore = 0)
+	#end
+	#set ($V = $sortmap.put($asset.getEntryId(), $assetScore))
+#end
+
+## needs hack to httpUtil to work, ask jhf for more info
+## #set ($newass = $httpUtil.sortAssets($res, $sortmap))
+#set ($newass = $res)
+	#foreach ($asset in $newass)
+	#set ($tagmatch = true)
+	#if ($reqTags)
+		#set ($tagmatch = false)
+		#foreach ($tag in $asset.getTagNames())
+			#foreach ($tagreq in $reqTags)
+				#if ($tag.equals($tagreq))
+					#set ($tagmatch = true)
+					#break
+				#end
+			#end
+		#end
+	#end
+
+	#if ($tagmatch && ($asset.getClassName() == "com.liferay.portlet.blogs.model.BlogsEntry" ||
+		$asset.getClassName() == "com.liferay.portlet.messageboards.model.MBMessage" ||
+		$asset.getClassName() == "com.liferay.portlet.wiki.model.WikiPage"))
+
+		#set ($arf = $arfru.getAssetRendererFactoryByClassName($asset.getClassName()))
+		#set ($ar = $arf.getAssetRenderer($asset.getClassPK()))
+		<tr class="results-row portlet-section-alternate-hover">
+		<td class="align-left col-1 col-1 only valign-middle" colspan="1">
+		<span class="asset-entry">
+		<span style="float:right; font-size: 0.8em; color: #777;" class="asset-entry-type">
+			$rau.getModelResource($locale, $asset.getClassName()) by <b>$asset.getUserName()</b>
+		</span>
+
+		<span style="tex-align: left;color: #5B677D; display: block; font-size: 1.5em; font-weight: bold" class="asset-entry-title">
+
+			#if ($asset.getClassName() == "com.liferay.portlet.blogs.model.BlogsEntry")
+				<a href="/c/blogs/find_entry?entryId=$asset.getClassPK()">
+			#elseif ($asset.getClassName() == "com.liferay.portlet.messageboards.model.MBMessage")
+				<a href="/c/message_boards/find_message?messageId=$asset.getClassPK()">
+			#else
+			<a href="/c/wiki/find_page?pageResourcePrimKey=$asset.getClassPK()">
+			#end
+
+			#if ($asset.getClassName().equals("com.liferay.portlet.blogs.model.BlogsEntry"))
+				#set ($iconsrc = "/html/themes/classic/images/blogs/blogs.png")
+			#elseif ($asset.getClassName().equals("com.liferay.portlet.wiki.model.WikiPage"))
+				#set ($iconsrc = "/html/themes/classic/images/common/pages.png")
+			#else
+				#set ($iconsrc = "/html/themes/classic/images/common/conversation.png")
+			#end
+			<img src="$iconsrc" />
+				$ar.getTitle($locale)</a>
+		</span>
+			<p>
+		<span class="asset-entry-content">
+			<span class="asset-entry-summary">
+				$stringUtil.shorten($ar.getSummary($locale), 200)
+			</span>
+			<p>
+			<div class="asset-entry-tags">
+				#foreach ($tagh in $asset.getTagNames())
+				<a class="tag" style="background: url(/html/themes/classic/images/common/tag.png) no-repeat 0 50%; margin-bottom: 3px; margin-right: 3px; padding: 2px 5px 2px 20px;" href="#">$tagh</a>
+				#end
+
+		</span>
+		<div style="text-align: center; float: right; background-size: 48px; width: 48px; height: 48px; background: #fff url('/html/icons/bookmarks.png') no-repeat;"><span style="font-weight: bold; font-size: 1.5em; line-height: 45px; text-align: center">$sortmap.get($asset.getEntryId())</span> </div>
+	</div>
+	</span>
+	</td>
+	</tr>
+	#end
+#end
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>

@@ -1,0 +1,151 @@
+##DynamicQuery from Velocity in Liferay
+#set ($randomNamespace = $request.portlet-namespace)
+#set ($scopeGroupId = $getterUtil.getLong($request.theme-display.scope-group-id))
+
+#if ($request.lifecycle == "RENDER_PHASE")
+
+<article>
+	<h1 class="section-heading section-heading-b">
+		<div>Hot Topics (VM)</div>
+		<div class="section-heading-hr"></div>
+	</h1>
+
+	<div id='${randomNamespace}tablediv' style='width: 85%;'><!-- --></div>
+</article>
+
+<script type="text/javascript">
+
+	var ${randomNamespace}tablediv = document.getElementById('${randomNamespace}tablediv');
+  var ${randomNamespace}table;
+
+	function ${randomNamespace}drawChart() {
+
+		var html =
+		    '<table class="table table-hover table-bordered table-striped"> \
+	<thead> \
+	<tr> \
+	<th> \
+        $languageUtil.get($locale, "count") \
+	</th> \
+	<th> \
+        $languageUtil.get($locale, "subject") \
+	</th> \
+	</tr> \
+	</thead> \
+	<tbody>';
+
+		for (i = 0; i < ${randomNamespace}table.length; i++) {
+			html +=
+			    ('<tr><td>' + ${randomNamespace}table[i].msgCount + '</span></td>');
+
+			html +=
+			    ('<td><a href="/web/guest/forums/-/message_boards/message/' +
+                              ${randomNamespace}table[i].msgid + '">' +
+                              ${randomNamespace}table[i].subject +
+			    '</a></td></tr>');
+		}
+
+		html += ('</tbody></table>');
+
+	  console.log("pushing " + html + " to " + '${randomNamespace}tablediv');
+
+	  ${randomNamespace}tablediv.innerHTML = html;
+	}
+
+
+	function ${randomNamespace}getTable() {
+		AUI().use(
+		    "aui-base", "aui-io-plugin", "aui-io-request",
+		    function (A) {
+			    A.io.request(
+				'${request.resource-url}',
+				{
+					data: {},
+					dataType: "json",
+					on: {
+						success: function (event, id, obj) {
+							var responseData = this.get("responseData");
+										console.log("VM responseData: " + JSON.stringify(responseData));
+                                                    ${randomNamespace}table = responseData.jsonArray || [];
+
+                                                    ${randomNamespace}drawChart();
+						},
+						failure: function (event, id, obj) {
+						}
+					}
+				}
+			    );
+		    }
+		);
+	}
+
+				AUI().ready(function() {
+					${randomNamespace}getTable();
+				});
+</script>
+
+
+#elseif ($request.lifecycle == "RESOURCE_PHASE")
+
+	#set ($portalBeanLocator = $portal.getClass().forName("com.liferay.portal.kernel.bean.PortalBeanLocatorUtil"))
+
+	#set ($fastDateFormatFactoryUtil = $portal.getClass().forName("com.liferay.portal.kernel.util.FastDateFormatFactoryUtil"))
+	#set ($jsonFactory = $portalBeanLocator.locate("com.liferay.portal.kernel.json.JSONFactoryUtil"))
+	#set ($mbMessageLocalService = $portalBeanLocator.locate("com.liferay.portlet.messageboards.service.MBMessageLocalService.velocity"))
+	#set ($mbThreadLocalService = $portalBeanLocator.locate("com.liferay.portlet.messageboards.service.MBThreadLocalService.velocity"))
+
+	#set ($calClass = $portal.getClass().forName("java.util.GregorianCalendar"))
+	#set ($mbMessageClass = $portal.getClass().forName("com.liferay.portlet.messageboards.model.MBMessage"))
+	#set ($mbThreadClass = $portal.getClass().forName("com.liferay.portlet.messageboards.model.MBThread"))
+	#set ($dqfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.DynamicQueryFactoryUtil"))
+	#set ($pfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.ProjectionFactoryUtil"))
+	#set ($ofu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.OrderFactoryUtil"))
+	#set ($rfu = $portal.getClass().forName("com.liferay.portal.kernel.dao.orm.RestrictionsFactoryUtil"))
+
+	#set ($now = $calClass.getInstance())
+	#set ($weeksago = $calClass.getInstance())
+	#set ($V = $weeksago.add(3, -52))
+
+	#set ($q = $dqfu.forClass($mbThreadClass, $portal.getClass().getClassLoader()))
+	#set ($V = $q.add($rfu.ne("categoryId", $getterUtil.getLong("-1"))))
+	#set ($V = $q.add($rfu.eq("groupId", $getterUtil.getLong($scopeGroupId))))
+	#set ($V = $q.add($rfu.eq("companyId", $getterUtil.getLong($companyId))))
+	#set ($V = $q.add($rfu.eq("status", 0)))
+	#set ($V = $q.add($rfu.between("lastPostDate", $weeksago.getTime(), $now.getTime())))
+	#set ($V = $q.setProjection($pfu.property("threadId")))
+	#set ($res = $mbMessageLocalService.dynamicQuery($q))
+
+	#set ($jsonArray = $jsonFactory.createJSONArray())
+
+	#if (!$res.isEmpty())
+		#set ($q2 = $dqfu.forClass($mbMessageClass, $portal.getClass().getClassLoader()))
+
+		#set ($V = $q2.add($rfu.in("threadId", $res)))
+		#set ($V = $q2.add($rfu.between("createDate", $weeksago.getTime(), $now.getTime())))
+		#set ($V = $q2.setProjection($pfu.projectionList().add($pfu.groupProperty("rootMessageId")).add($pfu.alias($pfu.rowCount(), "msgCount"))))
+		#set ($V = $q2.addOrder($ofu.desc("msgCount")))
+		#set ($V = $q2.setLimit(0, 7))
+		#set ($res2 = $mbMessageLocalService.dynamicQuery($q2))
+
+		#foreach ($msgSum in $res2)
+
+			#set ($rootMsgId = $msgSum.get(0))
+			#set ($msgCount = $msgSum.get(1))
+			#set ($subject = $mbMessageLocalService.getMessage($rootMsgId).getSubject())
+			#set ($friendlyURL = "web/guest/forums/-/message_boards/message/" + $rootMsgId)
+
+			#set ($jsonObject = $jsonFactory.createJSONObject())
+			#set ($V = $jsonObject.put("subject", $stringUtil.shorten($htmlUtil.escape($subject), 55)))
+			#set ($V = $jsonObject.put("msgid", $rootMsgId))
+			#set ($V = $jsonObject.put("msgCount", $msgCount))
+			#set ($V = $jsonArray.put($jsonObject))
+		#end
+	#end
+
+{
+	"lang" : "vm",
+"jsonArray": ${jsonArray}
+}
+
+
+#end

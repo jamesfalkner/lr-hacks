@@ -1,0 +1,4 @@
+include 'wsbridge-webapp'
+include 'example-echo-portlet'
+include 'wsapi-exporter'
+

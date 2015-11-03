@@ -1,0 +1,6 @@
+Bundle-Name: Liferay Dependency Graph Rest
+Bundle-SymbolicName: com.liferay.dependency.graph.rest
+Bundle-Version: 1.0.0
+Include-Resource:\
+	classes
+Web-ContextPath: /dependency-graph-rest

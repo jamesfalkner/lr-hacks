@@ -1,0 +1,20 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Liferay Dependency Graph Rest
+Bundle-SymbolicName: com.liferay.dependency.graph.rest
+Bundle-Vendor: Liferay, Inc.
+Bundle-Version: 1.0.0
+Created-By: 1.7.0_79 (Oracle Corporation)
+Import-Package: com.liferay.portal.kernel.json,com.liferay.portal.kernel
+ .jsonwebservice,org.osgi.framework,org.osgi.framework.wiring
+Include-Resource: classes
+Javac-Debug: on
+Javac-Deprecation: off
+Javac-Encoding: UTF-8
+Private-Package: com.liferay.dependency.graph.rest,com.liferay.dependenc
+ y.graph.rest.json,test.json
+Require-Capability: osgi.ee;filter:="(&(osgi.ee=JavaSE)(version=1.7))"
+Service-Component: OSGI-INF/com.liferay.dependency.graph.rest.Dependenci
+ es.xml
+Tool: Bnd-2.4.0.201411031534
+Web-ContextPath: /dependency-graph-rest
